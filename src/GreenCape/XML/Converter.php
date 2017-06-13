@@ -78,15 +78,13 @@ class Converter implements \Iterator, \ArrayAccess
 	{
 		$xml        = '';
 		$attributes = '';
-		$indent     = str_repeat('    ', $level);
 
 		if (!empty($node['#comment']))
 		{
 			foreach ($node['#comment'] as $comment)
 			{
-				$comment = "{$indent}<!-- {$comment} -->";
-				$comment = $this->applyIndentation($comment, $indent);
-				$xml .= "\n" . $comment . "\n";
+				$comment = "<!-- {$comment} -->";
+				$xml .= $comment;
 			}
 			unset($node['#comment']);
 		}
@@ -111,7 +109,7 @@ class Converter implements \Iterator, \ArrayAccess
 			switch (gettype($data))
 			{
 				case 'array':
-					$xml .= "{$indent}<{$tag}{$attributes}>\n";
+					$xml .= "<{$tag}{$attributes}>";
 					if ($this->isAssoc($data))
 					{
 						$xml .= $this->traverse($data, $level + 1);
@@ -123,15 +121,15 @@ class Converter implements \Iterator, \ArrayAccess
 							$xml .= $this->traverse($child, $level + 1);
 						}
 					}
-					$xml .= "{$indent}</{$tag}>\n";
+					$xml .= "</{$tag}>";
 					break;
 
 				case 'NULL':
-					$xml .= "{$indent}<{$tag}{$attributes} />\n";
+					$xml .= "<{$tag}{$attributes} />";
 					break;
 
 				default:
-					$xml .= "{$indent}<{$tag}{$attributes}>{$data}</{$tag}>\n";
+					$xml .= "<{$tag}{$attributes}>{$data}</{$tag}>";
 					break;
 			}
 		}
@@ -385,16 +383,5 @@ class Converter implements \Iterator, \ArrayAccess
 	private function isFile($data)
 	{
 		return file_exists($data);
-	}
-
-	/**
-	 * @param $text
-	 * @param $indent
-	 *
-	 * @return mixed
-	 */
-	private function applyIndentation($text, $indent)
-	{
-		return preg_replace('~\s*\n\s*~', "\n{$indent}", $text);
 	}
 }
